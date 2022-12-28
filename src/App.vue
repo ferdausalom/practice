@@ -1,4 +1,8 @@
 <template>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="upgrade-insecure-requests"
+  />
   <div class="min-h-screen bg-gray-100">
     <div class="container mx-auto py-6">
       <h1 class="font-bold text-4xl text-center text-green-600 mb-8 italic">
