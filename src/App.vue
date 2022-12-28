@@ -105,7 +105,7 @@ function ayahNumber(e) {
 
 function getSurah(surahNum) {
   axios
-    .get("http://api.alquran.cloud/v1/surah/" + surahNum + "/ar.alafasy")
+    .get("https://api.alquran.cloud/v1/surah/" + surahNum + "/ar.alafasy")
     .then(function (response) {
       // handle success
       ayahs.value = response.data.data.ayahs;
@@ -114,7 +114,7 @@ function getSurah(surahNum) {
 }
 
 onMounted(() => {
-  axios.get("http://api.alquran.cloud/v1/surah").then(function (response) {
+  axios.get("https://api.alquran.cloud/v1/surah").then(function (response) {
     alquran.value = response.data.data;
   });
 
