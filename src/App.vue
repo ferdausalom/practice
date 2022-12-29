@@ -49,7 +49,8 @@
             </button>
           </div>
         </div>
-        <div class="text-4xl mt-8 text-slate-700">
+        <div class="text-4xl mt-8 text-slate-700 relative min-h-[20rem]">
+          <div class="loader" v-if="loading"></div>
           <p
             v-for="(ayah, index) in ayahs"
             :key="index"
@@ -61,10 +62,11 @@
             </span>
             {{ ayah.text }}
 
-            <audio id="audioPlayer" controls>
-              <source :src="ayah.audio" type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
+            <av-waveform
+              :canv-height="0"
+              :canv-width="0"
+              :src="ayah.audio"
+            ></av-waveform>
           </p>
         </div>
       </div>
@@ -80,12 +82,7 @@ let alquran = ref([]);
 let ayahs = ref([]);
 let surahName = ref({});
 let items = ref([]);
-
-function allAyth() {
-  ayahs.value = surahName.value.ayahs;
-  const audioPlayer = document.getElementById("audioPlayer");
-  audioPlayer.load();
-}
+let loading = ref(false);
 
 function surahNumber(e) {
   getSurah(e.currentTarget.value);
@@ -99,31 +96,28 @@ function ayahNumber(e) {
   });
 
   ayahs.value = items;
-  const audioPlayer = document.getElementById("audioPlayer");
-  audioPlayer.load();
 }
 
-function getSurah(surahNum) {
-  axios
-    .get("https://api.alquran.cloud/v1/surah/" + surahNum + "/ar.alafasy")
+async function getSurah(surahNum) {
+  loading.value = true;
+  await axios
+    .get("http://api.alquran.cloud/v1/surah/" + surahNum + "/ar.alafasy")
     .then(function (response) {
       // handle success
       ayahs.value = response.data.data.ayahs;
       surahName.value = response.data.data;
+    })
+    .finally(() => {
+      loading.value = false;
     });
 }
 
 onMounted(() => {
-  axios.get("https://api.alquran.cloud/v1/surah").then(function (response) {
+  axios.get("http://api.alquran.cloud/v1/surah").then(function (response) {
     alquran.value = response.data.data;
   });
 
   getSurah(1);
-});
-
-onBeforeUnmount(() => {
-  const audioPlayer = document.getElementById("audioPlayer");
-  audioPlayer.load();
 });
 </script>
 
@@ -135,5 +129,22 @@ onBeforeUnmount(() => {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
   padding: 0.5rem 1rem;
+}
+.loader {
+  /* Loader Div Class */
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  background-image: url(./assets/Wedges-3s-200px.gif);
+  background-size: 50px;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 10000000;
+  opacity: 0.8;
+  background-color: #182d4b;
+  border-radius: 10px;
+  filter: alpha(opacity=40);
 }
 </style>
