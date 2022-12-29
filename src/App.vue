@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-gray-600">
     <div class="container mx-auto py-6">
       <h1 class="font-bold text-4xl text-center text-green-600 mb-8 italic">
         Al Quran
@@ -7,11 +7,31 @@
       <div class="bg-white p-4 shadow rounded">
         <div class="flex -mx-4 items-center mb-6">
           <div class="flex-1 px-4">
+            <input
+              type="text"
+              v-model="searchSurah"
+              placeholder="Search surah"
+              class="quran-input"
+              dir="ltr"
+              v-on:mouseleave="mouseleave"
+              @keyup.enter="keyupenter"
+            />
+            <p class="text-red-400 text-sm mt-3" v-if="searchError != null">
+              {{ searchError }}
+            </p>
+          </div>
+          <div class="flex-1 px-4 text-center">
+            <h3 class="font-bold mb-1 text-2xl text-[#35a79c]">
+              {{ surahName.englishName }}
+            </h3>
+            <p>{{ surahName.englishNameTranslation }}</p>
+          </div>
+          <div class="flex-1 px-4">
             <select
               @change="surahNumber"
               name="quran-input"
               id=""
-              class="quran-input"
+              class="quran-input mb-4"
             >
               <option disabled selected value="">Select Sura</option>
               <option
@@ -22,14 +42,6 @@
                 {{ surah.name }} &nbsp; {{ surah.englishName }}
               </option>
             </select>
-          </div>
-          <div class="flex-1 px-4 text-center">
-            <h3 class="font-bold mb-1 text-2xl text-[#35a79c]">
-              {{ surahName.englishName }}
-            </h3>
-            <p>{{ surahName.englishNameTranslation }}</p>
-          </div>
-          <div class="flex-1 px-4">
             <select @change="ayahNumber" class="quran-input">
               <option disabled selected value="">Select Ayth</option>
 
@@ -49,7 +61,9 @@
             </button>
           </div>
         </div>
-        <div class="text-4xl mt-8 text-slate-700 relative min-h-[20rem]">
+        <div
+          class="text-4xl mt-8 text-slate-700 relative min-h-[20rem] max-h-[80rem] overflow-y-auto"
+        >
           <div class="loader" v-if="loading"></div>
           <p
             v-for="(ayah, index) in ayahs"
@@ -83,12 +97,41 @@ let ayahs = ref([]);
 let surahName = ref({});
 let items = ref([]);
 let loading = ref(false);
+let searchSurah = ref(null);
+let searchError = ref(null);
+
+function keyupenter() {
+  alquran.value.forEach((item) => {
+    if (strValidate(item.englishName) == strValidate(searchSurah.value)) {
+      // console.log(strValidate(item.englishName));
+      // searchError.value = null;
+      getSurah(item.number);
+    } else {
+      searchError.value = "!Please type correct name";
+    }
+  });
+
+  // if (searchSurah.value == "") {
+  //   searchError.value = null;
+  // }
+}
+
+function mouseleave() {
+  if (searchSurah.value == "") {
+    searchError.value = null;
+  }
+}
+
+function strValidate(string) {
+  return string.toLowerCase().trim().replace("-", " ");
+}
 
 function allAyth() {
   ayahs.value = surahName.value.ayahs;
 }
 
 function surahNumber(e) {
+  searchSurah.value = null;
   getSurah(e.currentTarget.value);
 }
 
@@ -112,6 +155,7 @@ async function getSurah(surahNum) {
       surahName.value = response.data.data;
     })
     .finally(() => {
+      searchError.value = null;
       loading.value = false;
     });
 }
@@ -120,7 +164,8 @@ onMounted(() => {
   axios.get("https://api.alquran.cloud/v1/surah").then(function (response) {
     alquran.value = response.data.data;
   });
-
+  searchError.value = null;
+  searchSurah.value = null;
   getSurah(1);
 });
 </script>
