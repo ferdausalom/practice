@@ -84,6 +84,10 @@ let surahName = ref({});
 let items = ref([]);
 let loading = ref(false);
 
+function allAyth() {
+  ayahs.value = surahName.value.ayahs;
+}
+
 function surahNumber(e) {
   getSurah(e.currentTarget.value);
 }
